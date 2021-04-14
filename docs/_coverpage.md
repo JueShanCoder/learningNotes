@@ -1,4 +1,4 @@
-![logo](_media/img.svg)
+[comment]: <> (![logo]&#40;_media/img.svg&#41;)
 
 # 珏衫的个人MD笔记
 
