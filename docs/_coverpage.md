@@ -6,4 +6,4 @@
 
 
 [开始阅读](README.md)
-[我的GitHub](https://github.com/Liuzilin-JS/docsify-notes)
+[我的GitHub](https://github.com/Liuzilin-JS/learningNotes/)
