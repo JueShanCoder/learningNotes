@@ -1,4 +1,4 @@
-![logo](_media/img.png)
+![logo](_media/icon.svg)
 
 # 珏衫的个人MD笔记
 
