@@ -1,6 +1,6 @@
 #  导读
 
-> [JueShan的个人MD笔记](https://jueshancoder.github.io/learningNotes/) ==> https://jueshancoder.github.io/learningNotes/
+> [JueShan的个人MD笔记](https://jueshan.gitee.io/learningNotes/) ==> https://jueshan.gitee.io/learningNotes/
 
 该项目用于记录个人学习笔记，有部分内容来自图书、博客、论坛等。
 
@@ -8,4 +8,4 @@
 
 ## 目录
 
-* [BigData](https://jueshancoder.github.io/learningNotes/#/study/BigData/README.md)
+* [BigData](https://jueshan.gitee.io/learningNotes/#/study/BigData/README.md)
