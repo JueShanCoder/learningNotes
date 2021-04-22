@@ -9,3 +9,4 @@
 ## 目录
 
 * [BigData](https://jueshan.gitee.io/learningNotes/#/study/BigData/README.md)
+* [使用docker部署相关服务](https://jueshan.gitee.io/learningNotes/#/study/OLAP/使用docker部署相关服务.md)
