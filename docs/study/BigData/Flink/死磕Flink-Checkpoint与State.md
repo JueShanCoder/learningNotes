@@ -102,6 +102,8 @@ f. 最后，当 Checkpoint coordinator 收集齐所有 task 的 state handle，�
 
 ### Savepoint 与 Checkpoint 的区别
 作业恢复时，二者均可以使用，主要区别如下：
+
+
 ![](https://mmbiz.qpic.cn/mmbiz_png/8AsYBicEePu5qTzK9oSphbPm2QbmEHdUBkoGct06zImhjP42JyNknxlpLMSFjaiblO4UvUklAmmMWa4ee7yjfAag/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
 
 
