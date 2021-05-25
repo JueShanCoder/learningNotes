@@ -37,6 +37,7 @@
 ### 运行时常量池
 - 运行时常量池（Runtime Constant Pool）是方法区的一部分。
 
+### HotSpot虚拟机对象探秘
 ### 直接内存
 - 直接内存（Direct Memory）并不是虚拟机运行时数据区的一部分。
 - 在JDK 1.4中新加入NIO（New Input/Output）类，引入了一种基于通道（Channel）与缓冲区（Buffer）的I/O方式，它可以使用Native函数库直接分配堆外内存，然后通过存储在Java堆中的DirectByteBuffer对象作为
@@ -53,5 +54,88 @@
 
 - 并发修改指针问题： 一种是对分配内存空间的动作进行同步处理-实际上虚拟机采用CAS配上失败重试的方式保证更新操作的原子性。另一种是把内存分配的动作按照线程划分在不同的空间之中进行，即每个线程在Java堆中预先分配一小块内存，称为
   本地线程分配缓冲（Thread Local Allocation Buffer TLAB），哪个线程要分配内存就在哪个线程的TLAB上分配，只有TLAB用完并分配新的TLAB时，才需要同步锁定。
+  内存分配完成后，虚拟机需要将分配到的内存空间都初始化为零值（不包括对象头），如果使用TLAB，这一工作过程也可以提前至TLAB分配时进行。这一步操作保证了对象的实例字段在Java代码中可以不赋初始值就直接使用，程序能访问到这些字段
+  的数据类型所对应的零值。
   
+### 对象内存布局
+- 在HotSpot虚拟机中，对象在内存中存储的布局可以分为3块区域：对象头（Header）、实例数据（Instance Data）和对齐填充（Padding）
+
+对象头（Header）：
+- 存储对象自身的运行时数据，（如HashCode、GC分代年龄、锁状态标志、线程持有的锁、偏向线程ID、偏向时间戳等） MarkWord：上述部分数据的长度在32位和64位的虚拟机（未开启压缩指针）中分别为32bit和64bit。如果对象处于未锁定的状态下，MarkWord的32bit空间中的25bit用于存储对象的哈希码，4bit用于存储对象分代年龄，2bit用于存储锁标志位，1bit固定为0。
+- 对象头的另一部分是类型指针，即对象指向它的类元数据的指针，虚拟机通过这个指针来确定这个对象是哪个类的实例。
+
+实例数据（Instance Data）：
+- 实例数据部分是对象真正存储的有效信息，也是在程序代码中所定义的各种类型的字段内容。这部分的存储顺序会受到虚拟机分配策略参数（FieldsAllocationStyle）和字段在Java源码中定义顺序的影响。
+
+对象填充（Padding）：
+- 仅仅起着占位符的作用。
+
+### 对象的访问定位
+建立对象是为了使用对象，我们的Java程序需要通过栈上的reference数据来操作堆上的具体对象。
+目前主流的访问方式有两种：
+- 使用句柄访问：在Java堆中将会划为一块内存来作为句柄池，reference中存储的就是对象的句柄地址，而句柄中包含了对象实例数据与类型数据各自的具体地址信息。
+
+- 使用直接指针访问：在Java堆对象的布局中就必须考虑如何放置访问类型数据的相关信息，而reference中存储的直接就是对象地址。
+
+这两种对象访问方式各有优势
+- 使用句柄来访问的最大好处就是reference中存储的是稳定的句柄地址，在对象被移动（垃圾收集时移动对象是非常普遍的行为）时只会改变句柄中的实例数据指针，而reference本身不需要修改。
+- 使用直接指针访问方式的最大好处就是速度更快，它节省了一次指针定位的时间开销。
+
+### 实战： OutOfMemoryError 异常
+### Java堆溢出
+- 设置IDE中的 VM arguments： -verbose:gc -Xms20M -Xmx20M -Xmn10M -XX:+PrintGCDetails -XX:SurvivorRatio=8
+
+- 运行如下代码
+```java
+public class HeapOOM {
+
+    static class OOMObject{
+
+    }
+
+    public static void main(String[] args) {
+        List<OOMObject> list = new ArrayList<>();
+        while (true){
+            list.add(new OOMObject());
+        }
+    }
+
+}
+```
+
+- 抛出如下异常  java.lang.OutOfMemoryError: Java heap space
+```log
+[GC (Allocation Failure) [PSYoungGen: 8192K->1014K(9216K)] 8192K->1499K(19456K), 0.0013164 secs] [Times: user=0.01 sys=0.00, real=0.01 secs] 
+[GC (Allocation Failure) [PSYoungGen: 9206K->995K(9216K)] 9691K->6856K(19456K), 0.0069342 secs] [Times: user=0.07 sys=0.00, real=0.01 secs] 
+[Full GC (Ergonomics) [PSYoungGen: 995K->0K(9216K)] [ParOldGen: 5860K->6469K(10240K)] 6856K->6469K(19456K), [Metaspace: 3288K->3288K(1056768K)], 0.0779819 secs] [Times: user=0.48 sys=0.01, real=0.08 secs] 
+[Full GC (Ergonomics) [PSYoungGen: 6665K->1445K(9216K)] [ParOldGen: 6469K->9887K(10240K)] 13135K->11333K(19456K), [Metaspace: 3301K->3301K(1056768K)], 0.1170625 secs] [Times: user=0.79 sys=0.00, real=0.12 secs] 
+[Full GC (Ergonomics) [PSYoungGen: 8192K->7156K(9216K)] [ParOldGen: 9887K->8800K(10240K)] 18079K->15956K(19456K), [Metaspace: 3306K->3306K(1056768K)], 0.1483900 secs] [Times: user=1.11 sys=0.01, real=0.15 secs] 
+[Full GC (Ergonomics) [PSYoungGen: 7908K->7831K(9216K)] [ParOldGen: 8800K->8800K(10240K)] 16708K->16632K(19456K), [Metaspace: 3306K->3306K(1056768K)], 0.1127290 secs] [Times: user=1.05 sys=0.00, real=0.11 secs] 
+[Full GC (Allocation Failure) [PSYoungGen: 7831K->7831K(9216K)] [ParOldGen: 8800K->8782K(10240K)] 16632K->16614K(19456K), [Metaspace: 3306K->3306K(1056768K)], 0.1247204 secs] [Times: user=1.12 sys=0.00, real=0.13 secs] 
+Heap
+ PSYoungGen      total 9216K, used 8016K [0x00000007bf600000, 0x00000007c0000000, 0x00000007c0000000)
+  eden space 8192K, 97% used [0x00000007bf600000,0x00000007bfdd4150,0x00000007bfe00000)
+  from space 1024K, 0% used [0x00000007bff00000,0x00000007bff00000,0x00000007c0000000)
+  to   space 1024K, 0% used [0x00000007bfe00000,0x00000007bfe00000,0x00000007bff00000)
+ ParOldGen       total 10240K, used 8782K [0x00000007bec00000, 0x00000007bf600000, 0x00000007bf600000)
+  object space 10240K, 85% used [0x00000007bec00000,0x00000007bf493aa8,0x00000007bf600000)
+ Metaspace       used 3340K, capacity 4500K, committed 4864K, reserved 1056768K
+  class space    used 364K, capacity 388K, committed 512K, reserved 1048576K
+Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+	at java.util.Arrays.copyOf(Arrays.java:3210)
+	at java.util.Arrays.copyOf(Arrays.java:3181)
+	at java.util.ArrayList.grow(ArrayList.java:265)
+	at java.util.ArrayList.ensureExplicitCapacity(ArrayList.java:239)
+	at java.util.ArrayList.ensureCapacityInternal(ArrayList.java:231)
+	at java.util.ArrayList.add(ArrayList.java:462)
+	at com.jueshan.pulsar.test.oom.HeapOOM.main(HeapOOM.java:15)
+
+```
+- 要解决这个区域的异常，一般的手段是先通过内存映象分析工具对Dump出来的堆转储快照进行分析，重点是确认内存中的对象是否是必要的，也就是要先分清楚到底是出现了内存泄露（Memory Leak）还是内存溢出（Memory Overflow）
+- 如果是内存泄露，可进一步通过工具查看泄露对象到GCRoots引用链。于是就能找到泄露对象是通过怎样的路径与GC Roots相关联并导致垃圾收集器无法自动回收它们的。
+- 如果不存在泄露，那么应当检查虚拟机的堆参数（-Xmx 与 -Xms）
+
+
+
+
 
