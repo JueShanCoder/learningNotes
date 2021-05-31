@@ -37,7 +37,7 @@
 ### 运行时常量池
 - 运行时常量池（Runtime Constant Pool）是方法区的一部分。
 
-### HotSpot虚拟机对象探秘
+## HotSpot虚拟机对象探秘
 ### 直接内存
 - 直接内存（Direct Memory）并不是虚拟机运行时数据区的一部分。
 - 在JDK 1.4中新加入NIO（New Input/Output）类，引入了一种基于通道（Channel）与缓冲区（Buffer）的I/O方式，它可以使用Native函数库直接分配堆外内存，然后通过存储在Java堆中的DirectByteBuffer对象作为
@@ -81,7 +81,7 @@
 - 使用句柄来访问的最大好处就是reference中存储的是稳定的句柄地址，在对象被移动（垃圾收集时移动对象是非常普遍的行为）时只会改变句柄中的实例数据指针，而reference本身不需要修改。
 - 使用直接指针访问方式的最大好处就是速度更快，它节省了一次指针定位的时间开销。
 
-### 实战： OutOfMemoryError 异常
+## 实战： OutOfMemoryError 异常
 ### Java堆溢出
 - 设置IDE中的 VM arguments： -verbose:gc -Xms20M -Xmx20M -Xmn10M -XX:+PrintGCDetails -XX:SurvivorRatio=8
 
