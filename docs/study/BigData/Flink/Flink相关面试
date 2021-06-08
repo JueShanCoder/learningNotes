@@ -23,3 +23,24 @@ Flink 是标准的实时处理引擎，基于事件驱动。而 Spark Streaming 
 容错机制：
     - 对于 Spark Streaming 任务，我们可以设置 checkpoint，然后假如发生故障并重启，我们可以从上次 checkpoint 之处恢复，但是这个行为只能使得数据不丢失，可能会重复处理，不能做到恰一次处理语义。
     
+# 阐述Flink如何处理反压，相比Storm、Spark Streaming提供的反压机制，描述其实现有什么不同？
+
+# 阐述流处理引擎提供的三种数据处理语义，解释Flink Checkpoint机制如何保证Flink程序结果的Exactly-Once语义，描述如何通过两阶段提交协议提供端到端的Exactly-Once保证？结合Kafka如何构建端到端的Exactly-Once处理？
+
+# 阐述Flink提供的容错机制，解释分布式快照Chandy Lamport算法逻辑，剖析Flink Checkpoint具体实现流程？
+
+# 如何处理Flink作业频繁重启问题？
+
+# 如何优化大状态的Flink作业？
+
+# 如何排查Flink Checkpoint超时问题？
+
+# 如何处理Flink作业中的数据倾斜问题？
+
+# Flink反压机制，如何排查反压瓶颈在哪及如何处理反压问题？
+
+# 哪种join可以满足耽搁流断流的时候仍然能保证正确的join到数据？
+
+# watermark是怎么生成和传递的？
+
+
