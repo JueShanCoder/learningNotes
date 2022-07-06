@@ -1,5 +1,7 @@
 * **目录**
   * [根目录（/）](/README)
   * [回到上一级（../）](/README)
-  * [Flink](/study/Java基础//README)
+  * [深入理解Java虚拟机-编译](/study/Java/深入理解java虚拟机/深入理解Java虚拟机-编译)
+  * [第二章-Java内存区域与内存溢出异常](/study/Java/深入理解java虚拟机/第二章-Java内存区域与内存溢出异常)
+  * [第三章-垃圾收集器与内存分配策略](/study/Java/深入理解java虚拟机/第三章-垃圾收集器与内存分配策略)
 
